@@ -1,0 +1,27 @@
+FROM php:8.3-cli
+
+RUN apt-get update && apt-get install -y \
+    git \
+    unzip \
+    libpq-dev \
+    supervisor \
+    && pecl install redis \
+    && docker-php-ext-enable redis \
+    && docker-php-ext-install pdo pdo_pgsql pcntl \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+WORKDIR /var/www/html
+
+COPY . .
+
+COPY .env.docker .env
+
+COPY docker/supervisor/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+RUN composer install --optimize-autoloader
+
+EXPOSE 8000 8080
+
+CMD ["supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
