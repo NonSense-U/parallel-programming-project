@@ -1,0 +1,344 @@
+type: collection.insomnia.rest/5.0
+name: parallel-programming
+meta:
+  id: wrk_ebeb518ef8c44a60b56be5cd4e9a3dd9
+  created: 1777237278060
+  modified: 1777237278060
+  description: ""
+collection:
+  - name: Cart
+    meta:
+      id: fld_b9e8da5d01fb4e6fa136f695ff007a0d
+      created: 1777381430359
+      modified: 1777381449693
+      sortKey: -1777381430359
+      description: ""
+    children:
+      - url: "{{ _.localhost }}/api/cart/checkout"
+        name: Checkout
+        meta:
+          id: req_2b95ce0b45fe46eab17de6bc9c998051
+          created: 1777381436671
+          modified: 1777382016917
+          isPrivate: false
+          description: ""
+          sortKey: -1777381436671
+        method: POST
+        headers:
+          - name: User-Agent
+            value: insomnia/11.5.0
+            id: pair_52689c6a354f415f9e19f2907b1b75c2
+          - id: pair_39743fa45dd6439592f4f75f595c3fb7
+            name: Accept
+            value: application/json
+            description: ""
+            disabled: false
+        authentication:
+          type: bearer
+          token: "{{ _.auth_token }}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.localhost }}/api/cart/items"
+        name: Add Item
+        meta:
+          id: req_068a00d57f474c23adc6fd5af0a1bff4
+          created: 1777381498498
+          modified: 1777381867383
+          isPrivate: false
+          description: ""
+          sortKey: -1777311223871
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"product_id" : "1",
+            	"quantity" : "3"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/11.5.0
+        authentication:
+          type: bearer
+          token: "{{ _.auth_token }}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.localhost }}/api/cart/items/1"
+        name: Remove Item
+        meta:
+          id: req_4719f4ed1d6b46ec9f32a579ed5cffbb
+          created: 1777381501514
+          modified: 1777381900193
+          isPrivate: false
+          description: ""
+          sortKey: -1777276117471
+        method: DELETE
+        headers:
+          - name: User-Agent
+            value: insomnia/11.5.0
+        authentication:
+          type: bearer
+          token: "{{ _.auth_token }}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.localhost }}/api/cart/empty"
+        name: Empty
+        meta:
+          id: req_2de4f0bb90904d26b42b09bfcae4065d
+          created: 1777381584718
+          modified: 1777381593034
+          isPrivate: false
+          description: ""
+          sortKey: -1777258564271
+        method: DELETE
+        headers:
+          - name: User-Agent
+            value: insomnia/11.5.0
+        authentication:
+          type: bearer
+          token: "{{ _.auth_token }}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+  - name: Order
+    meta:
+      id: fld_cea026dcbee047679523f2c5f2dd91b4
+      created: 1777382221686
+      modified: 1777382221686
+      sortKey: -1777382221686
+      description: ""
+    children:
+      - url: "{{ _.localhost }}/api/orders/"
+        name: Order History
+        meta:
+          id: req_d1abc937429c4cd6836f2f0db87e4a6d
+          created: 1777382225128
+          modified: 1777382246620
+          isPrivate: false
+          description: ""
+          sortKey: -1777382225128
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.5.0
+        authentication:
+          type: bearer
+          token: "{{ _.auth_token }}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+  - url: "{{ _.localhost }}/api/register"
+    name: Register
+    meta:
+      id: req_a3b0d9ddf23040dba4425373d3e1d88b
+      created: 1777237285379
+      modified: 1777240945741
+      isPrivate: false
+      description: ""
+      sortKey: -1777237285379
+    method: POST
+    body:
+      mimeType: application/json
+      text: |
+        {
+          "base": {
+            "name": "John Doe",
+            "email": "{% faker 'randomEmail' %}",
+            "password": "password",
+            "password_confirmation": "password"
+          },
+        	"login": true
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+        id: pair_1710cbab959f4e8e8921a92f8ca449de
+      - name: User-Agent
+        value: insomnia/11.5.0
+        id: pair_8a4aa81dd9d44bdc8b5e95fa7036d6d3
+      - id: pair_1f0800b816384a2c83b0ff17277b5a7b
+        name: Accept
+        value: application/json
+        description: ""
+        disabled: false
+    scripts:
+      afterResponse: |
+        	const jsonBody = insomnia.response.json();
+
+        	if (jsonBody && jsonBody.data && jsonBody.data.access_token) {
+        		insomnia.environment.set('auth_token', jsonBody.data.access_token);
+        	}
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: "{{ _.localhost }}/api/login"
+    name: Login
+    meta:
+      id: req_ea20e2fd2ec94e5eb616d11b9aaa1adb
+      created: 1777240679464
+      modified: 1777240943421
+      isPrivate: false
+      description: ""
+      sortKey: -1777215483114.5
+    method: POST
+    body:
+      mimeType: application/json
+      text: |
+        {
+        "email" : "testUser1@gmail.com",
+        "password" : "password"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+        id: pair_1710cbab959f4e8e8921a92f8ca449de
+      - name: User-Agent
+        value: insomnia/11.5.0
+        id: pair_8a4aa81dd9d44bdc8b5e95fa7036d6d3
+      - id: pair_1f0800b816384a2c83b0ff17277b5a7b
+        name: Accept
+        value: application/json
+        description: ""
+        disabled: false
+    scripts:
+      afterResponse: |
+        	const jsonBody = insomnia.response.json();
+
+        	if (jsonBody && jsonBody.data && jsonBody.data.access_token) {
+        		insomnia.environment.set('auth_token', jsonBody.data.access_token);
+        	}
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: "{{ _.localhost }}/api/logout"
+    name: Logout
+    meta:
+      id: req_7ff64a5bbedb4cf9837bc8ec09b36b43
+      created: 1777240685457
+      modified: 1777240927682
+      isPrivate: false
+      description: ""
+      sortKey: -1777204581982.25
+    method: DELETE
+    headers:
+      - name: User-Agent
+        value: insomnia/11.5.0
+        id: pair_8a4aa81dd9d44bdc8b5e95fa7036d6d3
+      - id: pair_1f0800b816384a2c83b0ff17277b5a7b
+        name: Accept
+        value: application/json
+        description: ""
+        disabled: false
+    authentication:
+      type: bearer
+      token: "{{ _.auth_token }}"
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: "{{ _.localhost }}/api/user"
+    name: test
+    meta:
+      id: req_fb270519420649d7839f621900158b1b
+      created: 1777241011071
+      modified: 1777241042332
+      isPrivate: false
+      description: ""
+      sortKey: -1777241011071
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/11.5.0
+    authentication:
+      type: bearer
+      token: "{{ _.auth_token }}"
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+cookieJar:
+  name: Default Jar
+  meta:
+    id: jar_2149dbc08191a07a850f44f78b90da43929a7622
+    created: 1777237278069
+    modified: 1777382003344
+  cookies:
+    - key: XSRF-TOKEN
+      value: eyJpdiI6InpmVkN6UEFUeDhubGxXSUdDVTJJSGc9PSIsInZhbHVlIjoiMkRuTDhNSUlKL3RRUzh5dEZqQVdPWWN1VzA5bFNBdmYyOWY0RjBsRWZHUXNmdGE3eFhZczJHOTNQVGZ4S2FLazBuY3U5UjNsZnZhMEhqazBkcjJHVzdIaS80UHlvZW1zMjRTRXRyUzR1VEhiY2xIOEdvQlhhaTFKbTZ3UDZ2SHciLCJtYWMiOiIxOTVhOTUzNjE4MzA4OTg5ZWI5ZDg3ODUzZDk5YzA4YjQwMTgxYThjYmJiNzI0ZTYzM2QwMjQzYmI1YTIxNmM5IiwidGFnIjoiIn0%3D
+      maxAge: 7200
+      domain: 127.0.0.1
+      path: /
+      hostOnly: true
+      creation: 2026-04-28T13:12:42.812Z
+      lastAccessed: 2026-04-28T13:13:23.344Z
+      sameSite: lax
+      id: 591f34f3-6bc9-4ec2-9539-6f3e02b7c5d9
+    - key: laravel-session
+      value: eyJpdiI6IlF3NVZpY2gxM0JoQTlhVytrazBGVVE9PSIsInZhbHVlIjoiZFQwU01uMEJKR1lGQ1BHcjRwNlNyNnM0QnB0Q1lWTldWaENUelBpVHBQK0ZtbG13Z3VBM2tBenRXdUhzUitrWW9mMDB5S0RLOGt1STIxeUpvMnNtQktNb2JPdmlzZ21SZDZmbmlkZWwvZ2h1NjRyUlRLWksrc0k3ZHdyTFpIcDgiLCJtYWMiOiI5NWQ4Y2FiMDZmNWZhZGU4MmZjMGFmMGUxNDNhOTM2ZWZmNGRiOTUwOTRhMjQzODE5Y2JjZTJmNTRjZjkzYjAzIiwidGFnIjoiIn0%3D
+      maxAge: 7200
+      domain: 127.0.0.1
+      path: /
+      httpOnly: true
+      hostOnly: true
+      creation: 2026-04-28T13:12:42.813Z
+      lastAccessed: 2026-04-28T13:13:23.344Z
+      sameSite: lax
+      id: 8717c474-1c74-482f-b47e-1f0acdf129d8
+environments:
+  name: Base Environment
+  meta:
+    id: env_2149dbc08191a07a850f44f78b90da43929a7622
+    created: 1777237278067
+    modified: 1777381858642
+    isPrivate: false
+  data:
+    auth_token: 1|n89eFohfP759xO0venQC9sGQJZ5imavhMkX5o6Fha1bc2555
+    localhost: 127.0.0.1:8000

@@ -21,5 +21,9 @@ class DatabaseSeeder extends Seeder
             'name' => 'testUser1',
             'email' => 'testUser1@gmail.com',
         ]);
+
+        $this->call([
+            ProductSeeder::class,
+        ]);
     }
 }

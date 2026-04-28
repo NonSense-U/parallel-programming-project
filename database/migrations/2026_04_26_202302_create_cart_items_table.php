@@ -1,7 +1,6 @@
 <?php
 
 use App\Models\Cart;
-use App\Models\Order;
 use App\Models\Product;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;

@@ -17,6 +17,7 @@ return new class extends Migration
             $table->id();
             $table->foreignIdFor(Product::class)->constrained()->cascadeOnDelete();
             $table->foreignIdFor(Order::class)->nullable()->constrained()->nullOnDelete();
+            $table->decimal('price_snapshot', 10, 2);
             $table->integer('quantity')->default(1);
             $table->timestamps();
         });
