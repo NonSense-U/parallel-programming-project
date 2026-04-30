@@ -24,3 +24,7 @@ Route::prefix('orders')->middleware('auth:sanctum')->group(function () {
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
+
+Route::get('/test', function () {
+    return response()->json(['message' => 'API is working']);
+});

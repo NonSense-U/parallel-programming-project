@@ -16,7 +16,7 @@ class CartService
             $order = $user->orders()->create();
 
             $order->items()->createMany(
-                $cart->items()->get()->map(function ($item) {
+                $cart->items()->with('product')->get()->map(function ($item) {
                     return [
                         'product_id' => $item->product_id,
                         'quantity' => $item->quantity,
@@ -38,14 +38,21 @@ class CartService
     public function addItem($user, $productId, $quantity)
     {
         $cart = $user->cart()->firstOrCreate([]);
-        $cart->items()->updateOrCreate(
-            ['product_id' => $productId],
-            ['quantity' => $quantity]
+        
+        DB::table('cart_items')->updateOrInsert(
+            [
+                'cart_id' => $cart->id,
+                'product_id' => $productId,
+            ],
+            [
+                'quantity' => $quantity,
+                'updated_at' => now(),
+                'created_at' => now(),
+            ]
         );
 
-        $total_price = $cart->items()->with('product')->get()->sum(function ($item) {
-            return $item->quantity * $item->product->price;
-        });
+        $total_price = $cart->items()->join('products', 'cart_items.product_id', '=', 'products.id')
+            ->sum(DB::raw('cart_items.quantity * products.price'));
 
         $cart->update(['total_price' => $total_price]);
 
@@ -58,9 +65,8 @@ class CartService
         $cart->items()->where('product_id', $productId)->delete();
 
 
-        $total_price = $cart->items()->with('product')->get()->sum(function ($item) {
-            return $item->quantity * $item->product->price;
-        });
+        $total_price = $cart->items()->join('products', 'cart_items.product_id', '=', 'products.id')
+            ->sum(DB::raw('cart_items.quantity * products.price'));
 
         $cart->update(['total_price' => $total_price]);
         return;

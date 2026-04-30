@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class CartItem extends Model
 {
-    protected $with = ['product', 'cart'];
+    protected $with = ['product'];
 
     public function product()
     {
