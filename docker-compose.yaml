@@ -41,7 +41,12 @@ services:
   worker:
     image: parallel-fpm
     container_name: worker
-    command: php artisan queue:work --queue=default,notifications --tries=1
+    command: >
+      php artisan queue:work --queue=default,notifications
+      --sleep=3
+      --tries=3
+      --max-jobs=500
+      --timeout=90
     environment:
       DB_CONNECTION: pgsql
       DB_HOST: postgres
