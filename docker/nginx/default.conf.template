@@ -37,7 +37,10 @@ server {
 # --------------------------------------------------
 # Protected endpoints used by k6 stress test
 # --------------------------------------------------
-
+    location /api/ {
+        limit_req zone=api_limit;
+    }
+    
     # Login
     location /api/login {
         limit_req zone=api_limit burst=15 nodelay;
@@ -74,6 +77,7 @@ server {
         try_files $uri $uri/ /index.php?$query_string;
     }
 
+    limit_req_status 429;
     
     # --------------------------------------------------
     # PHP-FPM handling

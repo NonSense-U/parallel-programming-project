@@ -9,11 +9,13 @@ class ProductController extends Controller
 {
     public function index()
     {
+        sleep(1);
         return Product::all();
     }
 
     public function show($id)
     {
+        sleep(1);
         return Product::findOrFail($id);
     }
 }
