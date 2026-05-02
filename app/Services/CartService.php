@@ -6,11 +6,9 @@ use App\Models\Product;
 use App\Models\User;
 use Exception;
 use Illuminate\Support\Facades\DB;
-use Throwable;
 
 class CartService
 {
-
     public function checkout(User $user)
     {
         DB::beginTransaction();
@@ -34,7 +32,7 @@ class CartService
                 $product = $products[$item->product_id] ?? null;
 
                 if (! $product || $product->stock < $item->quantity) {
-                    throw new Exception("Out of stock");
+                    throw new Exception('Out of stock');
                 }
                 $product->decrement('stock', $item->quantity);
             }
@@ -42,14 +40,14 @@ class CartService
             $order = $user->orders()->create();
 
             $order->items()->createMany(
-                $items->map(fn($item) => [
+                $items->map(fn ($item) => [
                     'product_id' => $item->product_id,
                     'quantity' => $item->quantity,
                     'price_snapshot' => $products[$item->product_id]->price,
                 ])->toArray()
             );
-            
-            $user->notify(new \App\Notifications\OrderCompletedNotification());
+
+            // $user->notify(new \App\Notifications\OrderCompletedNotification());
 
             $cart->items()->delete();
             $cart->update(['total_price' => 0]);
@@ -90,11 +88,10 @@ class CartService
         $cart = $user->cart()->firstOrFail();
         $cart->items()->where('product_id', $productId)->delete();
 
-
         $total_price = $cart->items()->join('products', 'cart_items.product_id', '=', 'products.id')
             ->sum(DB::raw('cart_items.quantity * products.price'));
 
         $cart->update(['total_price' => $total_price]);
-        return;
+
     }
 }

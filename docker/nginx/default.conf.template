@@ -39,6 +39,7 @@ server {
 # --------------------------------------------------
     location /api/ {
         limit_req zone=api_limit;
+        try_files $uri $uri/ /index.php?$query_string;
     }
     
     # Login
