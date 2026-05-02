@@ -1,27 +1,30 @@
-FROM php:8.3-cli
+FROM php:8.3-fpm
 
 RUN apt-get update && apt-get install -y \
     git \
     unzip \
     libpq-dev \
-    supervisor \
+    && docker-php-ext-install pdo_pgsql pcntl \
     && pecl install redis \
     && docker-php-ext-enable redis \
-    && docker-php-ext-install pdo pdo_pgsql pcntl \
     && rm -rf /var/lib/apt/lists/*
 
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
+
+COPY composer.json composer.lock ./
+RUN composer install --prefer-dist --optimize-autoloader --no-interaction --no-progress --no-scripts
 
 COPY . .
 
 COPY .env.docker .env
 
-COPY docker/supervisor/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+RUN composer dump-autoload --optimize --no-interaction
 
-RUN composer install --optimize-autoloader
+RUN chown -R www-data:www-data storage bootstrap/cache \
+    && chmod -R ug+rwx storage bootstrap/cache
 
-EXPOSE 8000 8080
+EXPOSE 9000
 
-CMD ["supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+CMD ["php-fpm"]

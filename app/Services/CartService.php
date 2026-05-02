@@ -2,34 +2,59 @@
 
 namespace App\Services;
 
+use App\Models\Product;
+use App\Models\User;
+use Exception;
 use Illuminate\Support\Facades\DB;
 use Throwable;
 
 class CartService
 {
 
-    public function checkout($user)
+    public function checkout(User $user)
     {
         DB::beginTransaction();
+
         try {
             $cart = $user->cart()->firstOrFail();
+            $items = $cart->items()->get();
+
+            if ($items->isEmpty()) {
+                throw new Exception('Cart is empty');
+            }
+
+            $productIds = $items->pluck('product_id');
+
+            $products = Product::whereIn('id', $productIds)
+                ->lockForUpdate()
+                ->get()
+                ->keyBy('id');
+
+            foreach ($items as $item) {
+                $product = $products[$item->product_id] ?? null;
+
+                if (! $product || $product->stock < $item->quantity) {
+                    throw new Exception("Out of stock");
+                }
+                sleep(4);
+                $product->decrement('stock', $item->quantity);
+            }
+
             $order = $user->orders()->create();
 
             $order->items()->createMany(
-                $cart->items()->with('product')->get()->map(function ($item) {
-                    return [
-                        'product_id' => $item->product_id,
-                        'quantity' => $item->quantity,
-                        'price_snapshot' => $item->product->price,
-                    ];
-                })->toArray()
+                $items->map(fn($item) => [
+                    'product_id' => $item->product_id,
+                    'quantity' => $item->quantity,
+                    'price_snapshot' => $products[$item->product_id]->price,
+                ])->toArray()
             );
 
             $cart->items()->delete();
             $cart->update(['total_price' => 0]);
 
             DB::commit();
-        } catch (Throwable $e) {
+        } catch (Exception $e) {
             DB::rollBack();
             throw $e;
         }
@@ -38,7 +63,7 @@ class CartService
     public function addItem($user, $productId, $quantity)
     {
         $cart = $user->cart()->firstOrCreate([]);
-        
+
         DB::table('cart_items')->updateOrInsert(
             [
                 'cart_id' => $cart->id,
