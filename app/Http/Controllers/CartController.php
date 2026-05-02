@@ -69,4 +69,14 @@ class CartController extends Controller
 
         return ApiResponse::success('Cart emptied successfully', data: $cart);
     }
+
+    public function show(Request $request)
+    {
+        $cart = $request->user()->cart()->with('items.product')->first();
+        if (!$cart) {
+            return ApiResponse::fail('Cart not found', 404);
+        }
+
+        return ApiResponse::success('Cart retrieved successfully', data: $cart);
+    }
 }

@@ -16,19 +16,16 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // User::factory(10)->create();
+        $index = 1;
+         while ($index <= 100) {
+            User::factory()->create([
+                'name' => "testUser$index",
+                'email' => "testUser$index@gmail.com",
+            ]);
 
-        User::factory()->create([
-            'name' => 'testUser1',
-            'email' => 'testUser1@gmail.com',
-        ]);
-        User::factory()->create([
-            'name' => 'testUser2',
-            'email' => 'testUser2@gmail.com',
-        ]);
-        User::factory()->create([
-            'name' => 'testUser3',
-            'email' => 'testUser3@gmail.com',
-        ]);
+            $index++;
+        }
+
         $this->call([
             ProductSeeder::class,
         ]);

@@ -12,10 +12,18 @@ server {
     add_header X-Frame-Options SAMEORIGIN;
     add_header Referrer-Policy strict-origin-when-cross-origin;
 
+    client_max_body_size 20M;
+
+    # --------------------------------------------------
+    # Main Laravel routing
+    # --------------------------------------------------
     location / {
         try_files $uri $uri/ /index.php?$query_string;
     }
 
+    # --------------------------------------------------
+    # Static ignored files
+    # --------------------------------------------------
     location = /favicon.ico {
         access_log off;
         log_not_found off;
@@ -26,15 +34,72 @@ server {
         log_not_found off;
     }
 
-    location ~ \.php$ {
-        try_files $uri =404;
-        include fastcgi_params;
-        fastcgi_param SCRIPT_FILENAME /var/www/html/public$fastcgi_script_name;
-        fastcgi_param DOCUMENT_ROOT /var/www/html/public;
-        fastcgi_pass $fpm_upstream;
-        fastcgi_read_timeout 300;
+# --------------------------------------------------
+# Protected endpoints used by k6 stress test
+# --------------------------------------------------
+
+    # Login
+    location /api/login {
+        limit_req zone=api_limit burst=15 nodelay;
+        try_files $uri $uri/ /index.php?$query_string;
     }
 
+    # Product listing
+    location /api/products {
+        limit_req zone=api_limit burst=30 nodelay;
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    # Add to cart
+    location /api/cart/items {
+        limit_req zone=api_limit burst=20 nodelay;
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    # View cart
+    location /api/cart/show {
+        limit_req zone=api_limit burst=20 nodelay;
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    # Checkout
+    location /api/cart/checkout {
+        limit_req zone=api_limit burst=20 nodelay;
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    # Orders
+    location /api/orders {
+        limit_req zone=api_limit burst=20 nodelay;
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    
+    # --------------------------------------------------
+    # PHP-FPM handling
+    # --------------------------------------------------
+    location ~ \.php$ {
+        try_files $uri =404;
+
+        include fastcgi_params;
+
+        fastcgi_pass $fpm_upstream;
+        fastcgi_index index.php;
+
+        fastcgi_param SCRIPT_FILENAME /var/www/html/public$fastcgi_script_name;
+        fastcgi_param DOCUMENT_ROOT /var/www/html/public;
+
+        fastcgi_connect_timeout 30s;
+        fastcgi_send_timeout 60s;
+        fastcgi_read_timeout 60s;
+
+        fastcgi_buffer_size 32k;
+        fastcgi_buffers 8 16k;
+    }
+
+    # --------------------------------------------------
+    # Security
+    # --------------------------------------------------
     location ~ /\.(?!well-known).* {
         deny all;
     }
