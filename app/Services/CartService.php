@@ -36,7 +36,6 @@ class CartService
                 if (! $product || $product->stock < $item->quantity) {
                     throw new Exception("Out of stock");
                 }
-                sleep(4);
                 $product->decrement('stock', $item->quantity);
             }
 
@@ -49,6 +48,8 @@ class CartService
                     'price_snapshot' => $products[$item->product_id]->price,
                 ])->toArray()
             );
+            
+            $user->notify(new \App\Notifications\OrderCompletedNotification());
 
             $cart->items()->delete();
             $cart->update(['total_price' => 0]);
