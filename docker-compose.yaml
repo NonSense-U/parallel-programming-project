@@ -1,7 +1,6 @@
 services:
   php-fpm:
     image: parallel-fpm
-    container_name: php-fpm
     build:
       context: .
       dockerfile: docker/php/Dockerfile
@@ -25,7 +24,6 @@ services:
 
   nginx:
     image: parallel-nginx
-    container_name: nginx
     build:
       context: .
       dockerfile: docker/nginx/Dockerfile
@@ -40,7 +38,6 @@ services:
 
   worker:
     image: parallel-fpm
-    container_name: worker
     command: >
       php artisan queue:work --queue=default,notifications
       --sleep=3
@@ -68,7 +65,6 @@ services:
 
   scheduler:
     image: parallel-fpm
-    container_name: scheduler
     command: php artisan schedule:work
     environment:
       DB_CONNECTION: pgsql

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\LogFpmUpstream;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -12,7 +13,13 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        $middleware->web(append: [
+            LogFpmUpstream::class,
+        ]);
+
+        $middleware->api(append: [
+            LogFpmUpstream::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
